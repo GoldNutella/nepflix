@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nepflix/entities/movie.dart';
+import 'package:nepflix/moviedetailspage.dart';
 
 class SearchPage extends StatelessWidget {
   @override
@@ -63,6 +64,7 @@ class _SearchViewState extends State<SearchView> {
            return index == 0 ? _searchBar() : _listItem(index-1);
           },
           itemCount: _movielistdisplayed.length+1,
+
         )
     );
   }
