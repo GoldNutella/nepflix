@@ -19,19 +19,19 @@ class SearchView extends StatefulWidget {
 }
 
 class _SearchViewState extends State<SearchView> {
-  Future<List<Movies>> _getMovies() async {
+  Future<List<Movie>> _getMovies() async {
     var data = await http.get(
-        "https://raw.githubusercontent.com/erik-sytnyk/movies-list/master/db.json");
+        "https://raw.githubusercontent.com/GoldNutella/nepflix/master/lib/assets/movielistjson.json");
 
     var jsonData = json.decode(data.body);
 
-    List<Movies> movielist = [];
+    List<Movie> movielist = [];
 
     for (var u in jsonData) {
-      Movies movies = Movies(u["id"], u["title"], u["year"], u["runtime"],
+      Movie movie = Movie(u["id"], u["title"], u["year"], u["runtime"],
           u["genres"], u["director"], u["actors"], u["plot"], u["posterUrl"]);
 
-      movielist.add(movies);
+      movielist.add(movie);
     }
 
     print(movielist.length);
@@ -74,7 +74,7 @@ class _SearchViewState extends State<SearchView> {
   }
 }
 
-class Movies {
+class Movie {
   final int id;
   final String title;
   final String year;
@@ -85,6 +85,6 @@ class Movies {
   final String plot;
   final String posterUrl;
 
-  Movies(this.id, this.title, this.year, this.runtime, this.genres,
+  Movie(this.id, this.title, this.year, this.runtime, this.genres,
       this.director, this.actors, this.plot, this.posterUrl);
 }
