@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:nepflix/entities/movie.dart';
 
 class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.black, brightness: Brightness.dark),
+      theme: ThemeData(primaryColor: Colors.black, brightness: Brightness.dark,),
       home: SearchView(),
     );
   }
@@ -19,72 +20,87 @@ class SearchView extends StatefulWidget {
 }
 
 class _SearchViewState extends State<SearchView> {
-  Future<List<Movie>> _getMovies() async {
-    var data = await http.get(
-        "https://raw.githubusercontent.com/GoldNutella/nepflix/master/lib/assets/movielistjson.json");
 
-    var jsonData = json.decode(data.body);
+  List<Movie> _movielist = List<Movie>();
+  List<Movie> _movielistdisplayed = List<Movie>();
 
-    List<Movie> movielist = [];
+  Future<List<Movie>> fetchMovies() async {
+    var url = 'https://raw.githubusercontent.com/hjorturlarsen/IMDB-top-100/master/data/movies.json';
+    var response = await http.get(url);
 
-    for (var u in jsonData) {
-      Movie movie = Movie(u["id"], u["title"], u["year"], u["runtime"],
-          u["genres"], u["director"], u["actors"], u["plot"], u["posterUrl"]);
+    var notes = List<Movie>();
 
-      movielist.add(movie);
+    if (response.statusCode == 200) {
+      var notesJson = json.decode(response.body);
+      for (var noteJson in notesJson) {
+        notes.add(Movie.fromJson(noteJson));
+      }
     }
+    return notes;
+  }
 
-    print(movielist.length);
-
-    return movielist;
+  @override
+  void initState() {
+    fetchMovies().then((value) {
+      setState(() {
+        _movielist.addAll(value);
+        _movielistdisplayed = _movielist;
+      });
+    });
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Movie list'),
-      ),
-      body: Container(
-        child: FutureBuilder(
-          future: _getMovies(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            print(snapshot.data);
-            if (snapshot.data == null) {
-              return Container(child: Center(child: Text("Loading...")));
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext context, int id) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                          NetworkImage(snapshot.data[id].posterUrl),
-                    ),
-                    title: Text(snapshot.data[id].name),
-                    subtitle: Text(snapshot.data[id].email),
-                  );
-                },
-              );
-            }
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Movie list'),
+        ),
+        body: ListView.builder(
+          itemBuilder: (context, index) {
+           return index == 0 ? _searchBar() : _listItem(index-1);
           },
+          itemCount: _movielistdisplayed.length+1,
+        )
+    );
+  }
+
+  _searchBar(){
+    return Padding(padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search...'
+        ),
+        onChanged: (text){
+          text = text.toLowerCase();
+          setState(() {
+            _movielistdisplayed = _movielist.where((movie) {
+              var movieTitle = movie.title.toLowerCase();
+              return movieTitle.contains((text));
+            }).toList();
+          });
+        },
+      ),
+    );
+  }
+  _listItem(index) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 32.0, bottom: 32.0, left: 16.0, right: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              _movielistdisplayed[index].title,
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class Movie {
-  final int id;
-  final String title;
-  final String year;
-  final String runtime;
-  final List<String> genres;
-  final String director;
-  final String actors;
-  final String plot;
-  final String posterUrl;
-
-  Movie(this.id, this.title, this.year, this.runtime, this.genres,
-      this.director, this.actors, this.plot, this.posterUrl);
-}
