@@ -53,7 +53,9 @@ class _SearchViewState extends State<SearchView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
         appBar: AppBar(
+          centerTitle: true,
           title: Text('Movie list'),
         ),
         body: ListView.builder(
@@ -69,6 +71,7 @@ class _SearchViewState extends State<SearchView> {
     return Padding(padding: const EdgeInsets.all(8.0),
       child: TextField(
         decoration: InputDecoration(
+          border: InputBorder.none,
           hintText: 'Search...'
         ),
         onChanged: (text){
