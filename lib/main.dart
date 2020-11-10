@@ -31,7 +31,7 @@ class NepflixTabBar extends StatelessWidget {
                 tabs: [
                   Tab(icon: Icon(Icons.home,), text: "Home",),
                   Tab(icon: Icon(Icons.search), text: "Search"),
-                  Tab(icon: Icon(Icons.list), text: "More"),
+                  Tab(icon: Icon(Icons.list), text: "Coming soon"),
                 ],
                 unselectedLabelColor: Color(0xff999999),
                 labelColor: Colors.white,
